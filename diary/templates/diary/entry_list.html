@@ -18,8 +18,38 @@
                 </form>
             </div>
         </div>
-        {% if entries %}
-            {% for entry in entries %}
+
+        <!-- 検索・絞り込むフォーム -->
+        <div class="card shadow-sm mb-4 p-3">
+            <form method="get">
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <input type="text" name="q" class="form-control"
+                            placeholder="キーワード検索" value="{{ query }}">
+                    </div>
+                    <div class="col-md-3">
+                        <input type="month" name="month" class="form-control" value="{{ month }}">
+                    </div>
+                    <div class="col-md-3">
+                        <select name="mood" class="form-select">
+                            <option value="">気分（すべて）</option>
+                            {% for value, label in mood_choices %}
+                                <option value="{{ value }}" {% if mood == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn-btn-primary w-100">絞り込む</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- 日記一覧  -->
+        {% if page_obj %}
+            {% for entry in page_obj %}
                 <div class="card mb-3 shadow-sm">
                     <div class="card-body">
                         <div class="d-flex justify-content-between">
@@ -31,6 +61,25 @@
                     </div>
                 </div>
             {% endfor %}
+        
+            <!-- ページネーション -->
+            <nav>
+                <ul class="pagination justify-content-centeer">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_number }}&q={{ query }}&month={{ month }}&mood={{ mood }}">前へ</a>
+                        </li>
+                    {% endif %}
+                    <li class="page-item disabled">
+                        <span class="page-link">{{ page_obj.number }} / {{ page_obj.pagenator.num_pages }}</span>
+                    </li>
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="pagelink" href="?page={{ page_obj.next_page_number }}q={{ query }}&month={{ month }}&mood={{ mood }}">次へ</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
         {% else %}
             <div class="text-center mt-5">
                 <p class="text-muted">まだ日記がありません。最初の日記を書いてみましょう！</p>

@@ -6,7 +6,36 @@ from .forms import EntryForm
 @login_required
 def entry_list(request):
     entries = Entry.objects.filter(user=request.user)
-    return render(request, 'diary/entry_list.html', {'entries': entries})
+
+    # 検索
+    query = request.GET.get('q', '')
+    if query:
+        entries = entries.filter(title__icontains=query) | entries.filter(content__icontains=query)
+
+    # 月別絞り込み
+    month = request.GET.get('month', '')
+    if month:
+        year, m = month.split('_')
+        entries = entries.filter(date__year=year, date__month = m)
+
+    # 気分別絞り込み
+    mood = request.GET.get('mood', '')
+    if mood:
+        entries = entries.filter(mood=mood)
+
+    # ページネーション
+    from django.core.paginator import Paginator
+    paginator = Paginator(entries, 5)   # 1ページ5件
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'diary/entry_list.html', {
+        'page_obj': page_obj,
+        'query': query,
+        'month': month,
+        'mood': mood,
+        'mood_choices': Entry.MOOD_CHOICES,
+    })
 
 @login_required
 def entry_detail(request, pk):
