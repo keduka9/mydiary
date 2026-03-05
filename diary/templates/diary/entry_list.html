@@ -75,7 +75,7 @@
                     </li>
                     {% if page_obj.has_next %}
                         <li class="page-item">
-                            <a class="pagelink" href="?page={{ page_obj.next_page_number }}q={{ query }}&month={{ month }}&mood={{ mood }}">次へ</a>
+                            <a class="pagelink" href="?page={{ page_obj.next_page_number }}&q={{ query }}&month={{ month }}&mood={{ mood }}">次へ</a>
                         </li>
                     {% endif %}
                 </ul>

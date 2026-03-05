@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 class Entry(models.Model):
     MOOD_CHOICES = [
         ('happy', '😊 嬉しい'),
-        ('nomal', '😐 普通'),
+        ('normal', '😐 普通'),
         ('sad', '😢 悲しい'),
     ]
 
