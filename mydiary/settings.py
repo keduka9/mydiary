@@ -1,4 +1,6 @@
 from pathlib import Path
+import os
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -8,12 +10,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-_v2n5l4)83_s4xt82c738^&yg(z^fs_ggmaxf2_ggob$8t$$q0'
+# SECRET_KEY = 'django-insecure-_v2n5l4)83_s4xt82c738^&yg(z^fs_ggmaxf2_ggob$8t$$q0'
+SECRET_KEY = os.environ.get('SEXRET_KEY', 'django-insecure-_v2n5l4)83_s4xt82c738^&yg(z^fs_ggmaxf2_ggob$8t$$q0')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -25,13 +29,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'diary'
+    'corsheaders',
+    'rest_framework',
+    'diary',
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -108,3 +116,18 @@ STATIC_URL = 'static/'
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login/'
+
+CORS_ALLOWED_ORIGINS = [
+    "http://127.0.0.1:8000",
+    "http://localhost:5173",
+]
+
+# 本番環境用のデータベース設定
+DATABASES_URL = os.environ.get('DATABASE_URL')
+if DATABASES_URL:
+    DATABASES['default'] = dj_database_url.parse(DATABASES_URL)
+
+# 静的ファイル
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+

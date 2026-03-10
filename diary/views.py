@@ -2,6 +2,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from .models import Entry
 from .forms import EntryForm
+from rest_framework import generics, permissions
+from .serializers import EntrySerializer
 
 @login_required
 def entry_list(request):
@@ -65,7 +67,7 @@ def entry_edit(request, pk):
             entry = form.save()
             return redirect('entry_detail', pk=entry.pk)
     else:
-        form = EntryForm(instandce=entry)
+        form = EntryForm(instance=entry)
     return render(request, 'diary/entry_edit.html', {'form': form, 'entry': entry})
 
 @login_required
@@ -75,3 +77,20 @@ def entry_delete(request, pk):
         entry.delete()
         return redirect('entry_lsit')
     return render(request, 'diary/entry_delete.html', {'entry': entry})
+
+class EntryListAPI(generics.ListCreateAPIView):
+    serializer_class = EntrySerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Entry.objects.filter(user=self.request.user)
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class EntryDetailAPI(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = EntrySerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Entry.objects.filter(user=self.request.user)
